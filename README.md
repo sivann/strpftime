@@ -4,7 +4,9 @@
 Parse date strings with strptime and print result with strftime
 
 #Usage: 
+```
 strpftime <input date string> <input strftime format> <output strptime format>
+```
 
 
 #Examples:
