@@ -15,7 +15,7 @@
 
 void usage() {
      fprintf(stderr,"\nstrpftime:Parse date strings with strptime and print result with strftime\n");
-     fprintf(stderr,"usage: strpftime -o <input strftime format> -o <output strptime format> -l <read that many chars on each line>\n");
+     fprintf(stderr,"usage: strpftime -i <input strftime format> -o <output strptime format> -l <read that many chars on each line>\n");
      fprintf(stderr,"\t -t: truncate output to -l value (just output dates)\n");
      fprintf(stderr,"\nExamples:\n cat logfile | strpftime "
 	        " -i \"%%Y-%%m-%%d %%H:%%M:%%S\" "
