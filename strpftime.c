@@ -106,8 +106,9 @@ int main(int argc, char ** argv)
 	   p=&line[0];
 
 	   if (skip_fields) {
+		   int fi;
 		   while (*p==' ') p++; //skip leading space
-		   for (int fi =0; fi<skip_fields;fi++) {
+		   for (fi =0; fi<skip_fields;fi++) {
 			   while (*p!=' ' && *p) p++; //skip field
 			   while (*p==' ') p++; //skip spaces
 		   }
@@ -119,9 +120,11 @@ int main(int argc, char ** argv)
 	   }
 	   else { //fields
 		   int ns;
+		   int fi;
+
 		   p=&line[0];
 		   while (*p==' ') p++; //skip leading space
-		   for (int fi =0; fi<fields;fi++) {
+		   for (fi =0; fi<fields;fi++) {
 			   ns = sscanf(p,"%s",&buf);   //read field
 			   if (!ns)
 				   break;
