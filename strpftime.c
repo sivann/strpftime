@@ -16,11 +16,17 @@
 void usage() {
      fprintf(stderr,"\nstrpftime:Parse date strings with strptime and print result with strftime\n");
      fprintf(stderr,"usage: strpftime -i <input strftime format> -o <output strptime format> -l <read that many chars on each line>\n");
-     fprintf(stderr,"\t -t: truncate output to -l value (just output dates)\n");
+     fprintf(stderr,"\t -i: input format (check man strftime)\n");
+     fprintf(stderr,"\t -i: output format (check man strptime)\n");
+     fprintf(stderr,"\t -l: input format length in bytes. Must be exact\n");
+     fprintf(stderr,"\t -f: input format length in fields, space separated. May be used instead of -l\n");
+     fprintf(stderr,"\t -F: skip fields from start of line\n");
+     fprintf(stderr,"\t -t: truncate output to -l value (just output dates)\n");;
+     fprintf(stderr,"\t -r: repeat original date on output\n");
      fprintf(stderr,"\nExamples:\n cat logfile | strpftime "
 	        " -i \"%%Y-%%m-%%d %%H:%%M:%%S\" "
 		    " -o \"%%d %%b %%Y %%H:%%M\""
-		    " -l 20\n"
+		    " -l 20"
 		    " -t\n"
 			);
 }
@@ -32,6 +38,10 @@ int main(int argc, char ** argv)
    char input_format[128];
    char output_format[128];
    int length=0;
+   int fields=0;
+   int want_repeat_date=0;
+   int skip_fields=0;
+   int input_length=0;
    char line[4096];
    char line_part[1024];
    int r;
@@ -44,7 +54,7 @@ int main(int argc, char ** argv)
 
 
 
-   while ((opt = getopt(argc, argv, "i:o:l:t")) != -1) {
+   while ((opt = getopt(argc, argv, "ri:o:l:tf:")) != -1) {
 	   switch (opt) {
 		   case 'i':
 			   strcpy(input_format, optarg);
@@ -55,8 +65,17 @@ int main(int argc, char ** argv)
 		   case 'l':
 			   length=atoi(optarg);
 			   break;
+		   case 'f':
+			   fields=atoi(optarg);
+			   break;
+		   case 'F':
+			   skip_fields=atoi(optarg);
+			   break;
 		   case 't':
 			   want_truncate=1;
+			   break;
+		   case 'r':
+			   want_repeat_date=1;
 			   break;
 			default:
 			   usage();
@@ -68,10 +87,55 @@ int main(int argc, char ** argv)
 	   usage();
 	   exit(EXIT_FAILURE);
    }
+
+   if (length && fields) {
+	   usage();
+	   fprintf(stderr,"\nPlease specify on of -f or -l\n");
+	   exit(EXIT_FAILURE);
+   }
+
+   if (!length && !fields) {
+	   usage();
+	   fprintf(stderr,"\nPlease specify one  of -f or -l\n");
+	   exit(EXIT_FAILURE);
+   }
    
    while (fgets(line, sizeof(line), stdin)) {
-	   bzero(line_part,sizeof(line_part));
-	   strncpy(line_part,line,length);
+	   char *p;
+	   bzero(line_part, sizeof(line_part));
+	   p=&line[0];
+
+	   if (skip_fields) {
+		   while (*p==' ') p++; //skip leading space
+		   for (int fi =0; fi<skip_fields;fi++) {
+			   while (*p!=' ' && *p) p++; //skip field
+			   while (*p==' ') p++; //skip spaces
+		   }
+	   }
+
+	   if (length) {
+		   strncpy(line_part, p, MIN(length,sizeof(line_part)));
+		   input_length=length;
+	   }
+	   else { //fields
+		   int ns;
+		   p=&line[0];
+		   while (*p==' ') p++; //skip leading space
+		   for (int fi =0; fi<fields;fi++) {
+			   ns = sscanf(p,"%s",&buf);   //read field
+			   if (!ns)
+				   break;
+			   strcat(line_part,buf); //append
+			   p+=strlen(buf);
+			   if (*p && fi<(fields-1)) //append next space if exists
+				   strncat(line_part,p,1);
+			   while (*p==' ') p++; //skip spaces
+		   }
+		   input_length=strlen(line_part);
+	   }
+
+	   //fprintf(stderr,"LINE_PART:[%s]\n",line_part);
+
 	   if (!strptime(line_part, input_format, &tm)) {
 		   fprintf(stderr,"strptime;error parsing time [%s] from [%s]\n",input_format,line_part);
 		   continue;
@@ -85,8 +149,11 @@ int main(int argc, char ** argv)
 	   if (want_truncate) {
 		   printf("%s\n",buf);
 	   }
+	   else if (want_repeat_date) {
+		   printf("%s %s",buf, line);
+	   }
 	   else {
-		   printf("%s%s",buf, line+length);
+		   printf("%s %s",buf, line+input_length+1);
 	   }
 
    }
