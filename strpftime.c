@@ -23,6 +23,7 @@ void usage() {
      fprintf(stderr,"\t -F: skip fields from start of line\n");
      fprintf(stderr,"\t -t: truncate output to -l value (just output dates)\n");;
      fprintf(stderr,"\t -r: repeat original date on output\n");
+     fprintf(stderr,"\t -d: show some debugging info\n");
      fprintf(stderr,"\nExamples:\n cat logfile | strpftime "
 	        " -i \"%%Y-%%m-%%d %%H:%%M:%%S\" "
 		    " -o \"%%d %%b %%Y %%H:%%M\""
@@ -47,15 +48,18 @@ int main(int argc, char ** argv)
    int r;
    int opt;
    int want_truncate = 0 ;
+   int debug=0;
 
    input_format[0]=0;
    output_format[0]=0;
-   length=0;
 
 
 
-   while ((opt = getopt(argc, argv, "ri:o:l:tf:")) != -1) {
+   while ((opt = getopt(argc, argv, "dri:o:l:tf:")) != -1) {
 	   switch (opt) {
+		   case 'd':
+			   debug=1;
+			   break;
 		   case 'i':
 			   strcpy(input_format, optarg);
 			   break;
@@ -121,23 +125,36 @@ int main(int argc, char ** argv)
 	   else { //fields
 		   int ns;
 		   int fi;
+		   int spaces_skipped=0;
 
 		   p=&line[0];
-		   while (*p==' ') p++; //skip leading space
+		   while (*p==' ') {
+			   p++; //skip leading space
+			   spaces_skipped++;
+		   }
 		   for (fi =0; fi<fields;fi++) {
 			   ns = sscanf(p,"%s",&buf);   //read field
 			   if (!ns)
 				   break;
 			   strcat(line_part,buf); //append
 			   p+=strlen(buf);
-			   if (*p && fi<(fields-1)) //append next space if exists
+
+			   if (*p && fi<(fields-1)) { //append next space if exists
 				   strncat(line_part,p,1);
-			   while (*p==' ') p++; //skip spaces
+				   p++;
+			   }
+
+			   if (fi<(fields-1)) //skip spaces if not last field
+				   while (*p==' ') {
+					   p++; //skip spaces
+					   spaces_skipped++;
+				   }
 		   }
-		   input_length=strlen(line_part);
+		   input_length=strlen(line_part)+spaces_skipped;;
 	   }
 
-	   //fprintf(stderr,"LINE_PART:[%s]\n",line_part);
+	   if (debug)
+		   fprintf(stderr,"INPUT_LINE_PART:[%s], input length:%d\n",line_part,input_length);
 
 	   if (!strptime(line_part, input_format, &tm)) {
 		   fprintf(stderr,"strptime;error parsing time [%s] from [%s]\n",input_format,line_part);
@@ -153,10 +170,10 @@ int main(int argc, char ** argv)
 		   printf("%s\n",buf);
 	   }
 	   else if (want_repeat_date) {
-		   printf("%s %s",buf, line);
+		   printf("%s%s",buf, line);
 	   }
 	   else {
-		   printf("%s %s",buf, line+input_length+1);
+		   printf("%s%s",buf, line+input_length);
 	   }
 
    }
