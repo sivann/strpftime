@@ -35,6 +35,8 @@ void usage() {
 int main(int argc, char ** argv)
 {
    struct tm tm;
+   struct tm * tm1;
+   time_t tm_epoch;
    char buf[512];
    char input_format[128];
    char output_format[128];
@@ -155,6 +157,13 @@ int main(int argc, char ** argv)
 
 	   if (debug)
 		   fprintf(stderr,"INPUT_LINE_PART:[%s], input length:%d\n",line_part,input_length);
+
+	   //initialize tm with local time for missing fields
+	   time(&tm_epoch);
+	   tm1=localtime(&tm_epoch);
+	   memcpy(&tm,tm1,sizeof(struct tm));
+
+
 
 	   if (!strptime(line_part, input_format, &tm)) {
 		   fprintf(stderr,"strptime;error parsing time [%s] from [%s]\n",input_format,line_part);
