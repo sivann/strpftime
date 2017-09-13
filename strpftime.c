@@ -24,12 +24,7 @@ void usage() {
      fprintf(stderr,"\t -t: truncate output to -l value (just output dates)\n");;
      fprintf(stderr,"\t -r: repeat original date on output\n");
      fprintf(stderr,"\t -d: show some debugging info\n");
-     fprintf(stderr,"\nExamples:\n cat logfile | strpftime "
-	        " -i \"%%Y-%%m-%%d %%H:%%M:%%S\" "
-		    " -o \"%%d %%b %%Y %%H:%%M\""
-		    " -l 20"
-		    " -t\n"
-			);
+     fprintf(stderr,"\nExamples:\ncat /var/log/messages | strpftime -i \"%%b %%d %%H:%%M:%%S\" -o \"%%Y-%%m-%%d %%H:%%M:%%S\" -f 3\n");
 }
 
 int main(int argc, char ** argv)
