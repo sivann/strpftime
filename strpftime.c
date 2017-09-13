@@ -135,7 +135,7 @@ int main(int argc, char ** argv)
 			   spaces_skipped++;
 		   }
 		   for (fi =0; fi<fields;fi++) {
-			   ns = sscanf(p,"%s",&buf);   //read field
+			   ns = sscanf(p,"%s",buf);   //read field
 			   if (!ns)
 				   break;
 			   strcat(line_part,buf); //append

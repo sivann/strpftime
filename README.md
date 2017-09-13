@@ -9,7 +9,7 @@ Parse date strings with strptime and print result with strftime
 strpftime:Parse date strings with strptime and print result with strftime
 usage: strpftime -i <input strftime format> -o <output strptime format> -l <read that many chars on each line>
      -i: input format (check man strftime)
-     -i: output format (check man strptime)
+     -o: output format (check man strptime)
      -l: input format length in bytes. Must be exact
      -f: input format length in fields, space separated. May be used instead of -l
      -F: skip fields from start of line
