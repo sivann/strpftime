@@ -15,9 +15,9 @@
 
 void usage() {
      fprintf(stderr,"\nstrpftime:Parse date strings with strptime and print result with strftime\n");
-     fprintf(stderr,"usage: strpftime -i <input strftime format> -o <output strptime format> -l <read that many chars on each line>\n");
+     fprintf(stderr,"usage: strpftime -i <input strftime format> -o <output strptime format> [-l <chars> | -f <fields>]\n");
      fprintf(stderr,"\t -i: input format (check man strftime)\n");
-     fprintf(stderr,"\t -i: output format (check man strptime)\n");
+     fprintf(stderr,"\t -o: output format (check man strptime)\n");
      fprintf(stderr,"\t -l: input format length in bytes. Must be exact\n");
      fprintf(stderr,"\t -f: input format length in fields, space separated. May be used instead of -l\n");
      fprintf(stderr,"\t -F: skip fields from start of line\n");
