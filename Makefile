@@ -1,5 +1,5 @@
 CC=gcc
-OPT=-O3 -pedantic -g
+OPT=-O3 -pedantic -Wall
 
 strpftime: strpftime.c
 	$(CC) $(OPT) -o strpftime strpftime.c 
